@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Umbu: Ouro Verde do Semiárido | Infográfico Estratégico</title>
+    <title>Umbu: De Fruta Nativa a Ativo Estratégico</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Plotly.js -->
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -17,15 +15,15 @@
                 extend: {
                     colors: {
                         'umbu-green': '#00C853',
-                        'umbu-light': '#69F0AE',
-                        'umbu-dark': '#00662B',
+                        'umbu-light': '#B9F6CA',
+                        'umbu-dark': '#1B5E20',
                         'sun-yellow': '#FFD600',
                         'terra-cotta': '#DD2C00',
-                        'deep-blue': '#263238',
-                        'off-white': '#F5F5F5'
+                        'deep-blue': '#102027',
+                        'soft-gray': '#F5F7F9'
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                     }
                 }
             }
@@ -33,508 +31,323 @@
     </script>
 
     <style>
-        /* Chart Container Styles - Strictly Enforcing Responsive Boundaries */
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 600px; /* Constraint for large screens */
-            height: 350px;    /* Base height */
-            max-height: 400px;
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 600px;
+            height: 300px;
+            margin: auto;
         }
 
-        /* Responsive adjustments for chart height */
-        @media (max-width: 640px) {
-            .chart-container {
-                height: 300px;
-            }
+        .view-section {
+            display: none;
+            transition: all 0.5s ease-in-out;
         }
 
-        /* Custom Card Styling */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-left: 6px solid #00C853;
-        }
-
-        .flow-arrow::after {
-            content: '▼';
+        .view-section.active {
             display: block;
-            text-align: center;
-            color: #00C853;
-            font-size: 1.5rem;
-            margin: 0.5rem 0;
         }
-        
-        @media (min-width: 768px) {
-            .flow-arrow::after {
-                content: '▶';
-                transform: none;
-            }
+
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
         }
     </style>
     <!-- 
         PALETTE: "Caatinga Vibrante"
-        Colors: #00C853 (Vibrant Green), #FFD600 (Sun Yellow), #DD2C00 (Terra Cotta), #263238 (Dark Slate)
-        Justification: High contrast, energetic, reflects the fruit and the intense sun of the region.
-        
-        PLAN SUMMARY:
-        1. Intro: The "Tree of Life" concept & untapped potential.
-        2. Problem: Waste statistics (Donut Chart).
-        3. Solution: Nutritional Value (Radar Chart) & Value Chain Optimization (CSS Flow).
-        4. Economics: Value Addition (Bar Chart).
-        5. Future: Growth Projections (Line Chart).
-        
-        NO SVG USED. NO MERMAID USED.
+        Colors: #00C853, #FFD600, #DD2C00, #102027
+        Confirming: NO SVG, NO MERMAID used.
     -->
 </head>
-<body class="bg-gray-50 text-deep-blue font-sans leading-relaxed">
+<body class="bg-soft-gray text-deep-blue font-sans overflow-x-hidden">
 
-    <!-- HERO SECTION -->
-    <header class="bg-gradient-to-r from-umbu-dark to-umbu-green text-white py-16 px-4 shadow-lg">
-        <div class="max-w-6xl mx-auto text-center">
-            <h1 class="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">O Potencial do Umbu</h1>
-            <p class="text-xl md:text-2xl font-light opacity-90">Tesouro Nutricional e Econômico do Semiárido Brasileiro</p>
-            <div class="mt-8 flex justify-center space-x-4">
-                <span class="bg-sun-yellow text-deep-blue px-4 py-2 rounded-full font-bold shadow-md">Spondias tuberosa</span>
-                <span class="bg-white text-umbu-dark px-4 py-2 rounded-full font-bold shadow-md">100% Nativo</span>
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 w-full z-[100] glass-nav shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-umbu-green rounded-full flex items-center justify-center text-white font-bold">U</div>
+                <span class="font-black text-xl tracking-tighter text-umbu-dark">UMBU INTEGRADO</span>
+            </div>
+            
+            <div id="nav-mode-buttons" class="flex space-x-2">
+                <button onclick="switchView('info-view')" id="btn-info" class="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-umbu-green text-white">INFOGRÁFICO</button>
+                <button onclick="switchView('mvp-view')" id="btn-mvp" class="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-gray-100 text-gray-500 hover:bg-umbu-light hover:text-umbu-dark">ESTUDO MVP</button>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <main class="max-w-6xl mx-auto px-4 py-12 space-y-20">
-
-        <!-- INTRO & KPI SECTION -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="md:col-span-2">
-                <h2 class="text-3xl font-bold text-umbu-dark mb-4 border-b-4 border-sun-yellow inline-block">Contexto Estratégico</h2>
-                <p class="text-lg text-gray-700 mb-4">
-                    O umbuzeiro é conhecido como a "Árvore Sagrada do Sertão" por sua resistência à seca. Apesar de seu alto valor cultural e biológico, a cadeia produtiva atual enfrenta gargalos severos de logística e processamento, resultando em desperdício massivo.
-                </p>
-                <p class="text-gray-600">
-                    Este estudo propõe a transformação do umbu de uma "fruta de safra" para um <strong>ingrediente funcional industrial</strong>, capaz de gerar renda contínua e preservar o bioma da Caatinga.
-                </p>
-            </div>
+    <!-- SECTION 1: INFOGRAPHIC VIEW (MAIN LANDING) -->
+    <div id="info-view" class="view-section active pt-24 pb-20">
+        <!-- Hero Infográfico -->
+        <section class="max-w-6xl mx-auto px-6 mb-20 text-center">
+            <h1 class="text-5xl md:text-7xl font-black text-umbu-dark mb-6">A Força da Caatinga</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-10">Conheça o potencial nutricional e ambiental do Umbu, a fruta que sustenta o semiárido brasileiro.</p>
             
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-1 gap-4">
-                <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-terra-cotta">
-                    <h3 class="text-gray-500 text-sm uppercase font-bold">Desperdício Atual</h3>
-                    <p class="text-4xl font-extrabold text-terra-cotta">~40%</p>
-                    <p class="text-xs text-gray-400">da produção é perdida pós-colheita</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-sun-yellow">
+                    <p class="text-4xl mb-2">🌿</p>
+                    <h4 class="font-bold text-lg">Resiliência</h4>
+                    <p class="text-sm text-gray-500">Sobrevive a longas secas estocando água em suas raízes.</p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-sun-yellow">
-                    <h3 class="text-gray-500 text-sm uppercase font-bold">Potencial Vitamina C</h3>
-                    <p class="text-4xl font-extrabold text-sun-yellow">33mg</p>
-                    <p class="text-xs text-gray-400">por 100g de polpa (Superior à Laranja)</p>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-umbu-green">
+                    <p class="text-4xl mb-2">🧪</p>
+                    <h4 class="font-bold text-lg">Nutrição</h4>
+                    <p class="text-sm text-gray-500">Rico em Vitamina C, sais minerais e potentes antioxidantes.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-terra-cotta">
+                    <p class="text-4xl mb-2">📉</p>
+                    <h4 class="font-bold text-lg">Urgência</h4>
+                    <p class="text-sm text-gray-500">Milhares de toneladas são perdidas por falta de processamento.</p>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 1: NUTRITIONAL COMPARISON (Radar Chart) -->
-        <section class="bg-white rounded-2xl shadow-xl p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-2xl font-bold text-umbu-dark mb-4">Poder Nutricional Comparado</h2>
-                    <p class="mb-4 text-gray-600">
-                        Para posicionar o umbu como "superalimento", é essencial compará-lo com frutas já consolidadas no mercado. O gráfico mostra o equilíbrio nutricional do umbu, destacando-se em antioxidantes e minerais essenciais para o metabolismo.
-                    </p>
-                    <ul class="space-y-2 text-sm text-gray-600">
-                        <li class="flex items-center"><span class="w-3 h-3 bg-umbu-green rounded-full mr-2"></span> <strong>Umbu:</strong> Alto teor de antioxidantes e eletrólitos.</li>
-                        <li class="flex items-center"><span class="w-3 h-3 bg-gray-400 rounded-full mr-2"></span> <strong>Laranja:</strong> Referência em Vitamina C.</li>
-                        <li class="flex items-center"><span class="w-3 h-3 bg-gray-300 rounded-full mr-2"></span> <strong>Manga:</strong> Rica em Vitamina A, mas calórica.</li>
-                    </ul>
-                </div>
-                <!-- Chart Container -->
+        <!-- Gráficos de Contexto -->
+        <section class="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div class="bg-white p-8 rounded-3xl shadow-sm">
+                <h3 class="text-xl font-black mb-6 border-l-4 border-umbu-green pl-4">Superioridade Nutricional</h3>
                 <div class="chart-container">
-                    <canvas id="nutritionRadarChart"></canvas>
+                    <canvas id="infoRadarChart"></canvas>
                 </div>
             </div>
-        </section>
-
-        <!-- SECTION 2: THE BOTTLENECK - WASTE ANALYSIS (Donut Chart) -->
-        <section>
-            <h2 class="text-3xl font-bold text-umbu-dark mb-8 text-center">Onde Perdemos Valor?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <!-- Chart Container -->
-                <div class="chart-container order-2 md:order-1">
-                    <canvas id="wasteDonutChart"></canvas>
-                </div>
-                <div class="order-1 md:order-2">
-                    <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-terra-cotta">
-                        <h3 class="text-xl font-bold mb-3">O Gargalo Logístico</h3>
-                        <p class="text-gray-700 mb-4">
-                            A extrema perecibilidade do umbu <i>in natura</i> é o maior inimigo da escala. Sem processamento imediato próximo à área de colheita, quase metade da safra é perdida no transporte ou apodrece no pé.
-                        </p>
-                        <p class="font-bold text-umbu-dark">A solução estratégica é a descentralização do pré-processamento (despolpa) em pequenas unidades comunitárias.</p>
+            <div class="flex flex-col justify-center">
+                <h2 class="text-3xl font-black mb-6">Por que olhar para o Umbu agora?</h2>
+                <p class="text-gray-600 mb-6">O mercado global busca "Superfoods" com história e impacto social. O Umbu preenche todos os requisitos, mas precisa de escala industrial.</p>
+                <!-- Botão Chamada para MVP -->
+                <button onclick="switchView('mvp-view')" class="group bg-deep-blue text-white p-6 rounded-2xl flex items-center justify-between hover:bg-umbu-dark transition-all">
+                    <div class="text-left">
+                        <span class="block text-xs font-bold text-sun-yellow uppercase tracking-widest mb-1">Área do Investidor</span>
+                        <span class="text-lg font-bold">Ver Estudo Estratégico (MVP)</span>
                     </div>
-                </div>
+                    <span class="text-2xl group-hover:translate-x-2 transition-transform">➜</span>
+                </button>
             </div>
         </section>
+    </div>
 
-        <!-- SECTION 3: VALUE CHAIN TRANSFORMATION (CSS Flowchart - NO MERMAID) -->
-        <section class="bg-deep-blue text-white rounded-3xl p-8 md:p-12 overflow-hidden relative">
-            <!-- Decorative circle -->
-            <div class="absolute top-0 right-0 w-64 h-64 bg-umbu-green opacity-10 rounded-full -mr-20 -mt-20"></div>
+    <!-- SECTION 2: MVP STRATEGIC VIEW (PITCH DECK) -->
+    <div id="mvp-view" class="view-section pt-24 pb-20 bg-white">
+        <!-- Header MVP -->
+        <header class="max-w-5xl mx-auto px-6 mb-16 text-center">
+            <span class="bg-umbu-light text-umbu-dark px-3 py-1 rounded-full text-xs font-bold mb-4 inline-block">APRESENTAÇÃO ESTRATÉGICA</span>
+            <h1 class="text-4xl md:text-6xl font-black text-deep-blue mb-6">Estratégia de Escala Industrial</h1>
+            <p class="text-lg text-gray-600">Um roadmap para transformar a coleta extrativista em um motor econômico regional de alta rentabilidade.</p>
+        </header>
 
-            <h2 class="text-3xl font-bold mb-8 text-center text-sun-yellow">Reestruturação da Cadeia Produtiva</h2>
-            <p class="text-center max-w-2xl mx-auto text-gray-300 mb-12">
-                Modelo proposto para eliminar intermediários predatórios e aumentar a margem do produtor através da verticalização.
-            </p>
-
-            <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0 relative z-10">
+        <!-- Simulator Section -->
+        <section class="max-w-6xl mx-auto px-6 mb-24">
+            <div class="bg-deep-blue text-white rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-umbu-green opacity-10 rounded-full"></div>
                 
-                <!-- Step 1 -->
-                <div class="flex flex-col items-center w-full md:w-1/4 group">
-                    <div class="w-20 h-20 bg-umbu-green rounded-2xl flex items-center justify-center text-4xl shadow-lg mb-4 transform group-hover:scale-110 transition-transform">
-                        🌳
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+                    <div>
+                        <h3 class="text-2xl font-bold text-sun-yellow mb-4">Simulador de Impacto</h3>
+                        <p class="text-gray-400 mb-8 text-sm">Ajuste o volume para entender a curva de valorização entre o produto bruto e o processado industrialmente.</p>
+                        
+                        <div class="space-y-10">
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-4 flex justify-between">
+                                    <span>Volume de Safra (Toneladas)</span>
+                                    <span id="mvp-vol-label" class="text-umbu-green">1.000t</span>
+                                </label>
+                                <input id="mvp-slider" type="range" min="100" max="10000" value="1000" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-sun-yellow">
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+                                    <span class="text-[10px] uppercase text-gray-500 font-bold">Valor In Natura</span>
+                                    <p id="mvp-val-raw" class="text-xl font-bold text-terra-cotta">R$ 500k</p>
+                                </div>
+                                <div class="p-4 bg-white/10 rounded-xl border border-umbu-green/30">
+                                    <span class="text-[10px] uppercase text-umbu-light font-bold">Valor Processado</span>
+                                    <p id="mvp-val-ind" class="text-xl font-bold text-sun-yellow">R$ 2.50M</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="font-bold text-lg">Coleta Sustentável</h3>
-                    <p class="text-xs text-center text-gray-400 mt-2 px-2">Agricultura Familiar & Cooperativas</p>
-                </div>
-
-                <!-- Arrow -->
-                <div class="hidden md:block text-umbu-green text-3xl">➔</div>
-                <div class="block md:hidden text-umbu-green text-3xl">⬇</div>
-
-                <!-- Step 2 -->
-                <div class="flex flex-col items-center w-full md:w-1/4 group">
-                    <div class="w-20 h-20 bg-sun-yellow text-deep-blue rounded-2xl flex items-center justify-center text-4xl shadow-lg mb-4 transform group-hover:scale-110 transition-transform">
-                        ⚙️
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-inner">
+                        <div class="chart-container">
+                            <canvas id="mvpProfitChart"></canvas>
+                        </div>
                     </div>
-                    <h3 class="font-bold text-lg">Beneficiamento Local</h3>
-                    <p class="text-xs text-center text-gray-400 mt-2 px-2">Despolpa & Congelamento Rápido</p>
-                </div>
-
-                <!-- Arrow -->
-                <div class="hidden md:block text-umbu-green text-3xl">➔</div>
-                <div class="block md:hidden text-umbu-green text-3xl">⬇</div>
-
-                <!-- Step 3 -->
-                <div class="flex flex-col items-center w-full md:w-1/4 group">
-                    <div class="w-20 h-20 bg-terra-cotta text-white rounded-2xl flex items-center justify-center text-4xl shadow-lg mb-4 transform group-hover:scale-110 transition-transform">
-                        🏭
-                    </div>
-                    <h3 class="font-bold text-lg">Indústria Alimentícia</h3>
-                    <p class="text-xs text-center text-gray-400 mt-2 px-2">Sucos, Geleias, Ingredientes Funcionais</p>
-                </div>
-
-                <!-- Arrow -->
-                <div class="hidden md:block text-umbu-green text-3xl">➔</div>
-                <div class="block md:hidden text-umbu-green text-3xl">⬇</div>
-
-                <!-- Step 4 -->
-                <div class="flex flex-col items-center w-full md:w-1/4 group">
-                    <div class="w-20 h-20 bg-white text-deep-blue rounded-2xl flex items-center justify-center text-4xl shadow-lg mb-4 transform group-hover:scale-110 transition-transform">
-                        🛒
-                    </div>
-                    <h3 class="font-bold text-lg">Mercado Global</h3>
-                    <p class="text-xs text-center text-gray-400 mt-2 px-2">Exportação & Varejo Premium</p>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 4: ECONOMIC IMPACT (Stacked Bar Chart) -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="md:col-span-1 bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-umbu-dark mb-4">Valor Agregado</h3>
-                <p class="text-sm text-gray-600 mb-4">
-                    A venda do fruto <i>in natura</i> gera a menor margem de lucro. O processamento para polpa triplica o valor, e a transformação em produtos finais (geleias, bebidas funcionais) pode aumentar o valor em até 10x.
-                </p>
-                <div class="bg-gray-100 p-4 rounded-lg">
-                    <p class="font-bold text-sm mb-2 text-gray-500">POTENCIAL DE RECEITA</p>
-                    <p class="text-2xl font-bold text-umbu-green">+ 350%</p>
-                    <p class="text-xs text-gray-500">com processamento industrial</p>
+        <!-- SWOT & Refs Buttons -->
+        <section class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-soft-gray p-8 rounded-3xl">
+                <h4 class="font-black text-xl mb-4">Análise SWOT</h4>
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                    <div class="p-3 bg-white rounded-lg border-l-4 border-umbu-green font-bold">Resiliência Climática</div>
+                    <div class="p-3 bg-white rounded-lg border-l-4 border-terra-cotta font-bold">Logística de Perecíveis</div>
+                    <div class="p-3 bg-white rounded-lg border-l-4 border-sun-yellow font-bold">Adoção Nutricional</div>
+                    <div class="p-3 bg-white rounded-lg border-l-4 border-gray-400 font-bold">Mudanças no Bioma</div>
                 </div>
             </div>
             
-            <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-lg font-bold text-gray-700 mb-4">Comparativo de Rentabilidade por Modelo</h3>
-                <!-- Chart Container -->
-                <div class="chart-container">
-                    <canvas id="valueAddChart"></canvas>
-                </div>
+            <div class="flex flex-col justify-center space-y-4">
+                <button onclick="toggleModal('ref-modal')" class="w-full bg-deep-blue text-white py-4 rounded-xl font-bold hover:bg-black transition shadow-lg">
+                    VER REFERÊNCIAS CIENTÍFICAS
+                </button>
+                <button onclick="toggleModal('contact-modal')" class="w-full border-2 border-deep-blue text-deep-blue py-4 rounded-xl font-bold hover:bg-deep-blue hover:text-white transition">
+                    SOLICITAR ACESSO COMPLETO
+                </button>
             </div>
         </section>
+    </div>
 
-        <!-- SECTION 5: SWOT ANALYSIS (Grid Layout) -->
-        <section>
-            <h2 class="text-3xl font-bold text-umbu-dark mb-8 text-center">Análise Estratégica (SWOT)</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Strengths -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-umbu-green">
-                    <h3 class="font-bold text-umbu-green mb-3 flex items-center"><span class="text-2xl mr-2">💪</span> Forças</h3>
-                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
-                        <li>Adaptação climática perfeita (seca).</li>
-                        <li>Apelo de "Superfruta" natural.</li>
-                        <li>Forte identidade cultural regional.</li>
-                        <li>Versatilidade (doce e salgado).</li>
-                    </ul>
-                </div>
-
-                <!-- Weaknesses -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-terra-cotta">
-                    <h3 class="font-bold text-terra-cotta mb-3 flex items-center"><span class="text-2xl mr-2">⚠️</span> Fraquezas</h3>
-                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
-                        <li>Alta perecibilidade (3-4 dias).</li>
-                        <li>Sazonalidade concentrada.</li>
-                        <li>Baixa tecnificação na colheita.</li>
-                        <li>Logística deficiente no sertão.</li>
-                    </ul>
-                </div>
-
-                <!-- Opportunities -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-sun-yellow">
-                    <h3 class="font-bold text-yellow-600 mb-3 flex items-center"><span class="text-2xl mr-2">🚀</span> Oportunidades</h3>
-                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
-                        <li>Mercado de alimentos funcionais/saudáveis.</li>
-                        <li>Exportação (selo orgânico/fair trade).</li>
-                        <li>Merenda escolar (PNRE).</li>
-                        <li>Cosméticos (uso do extrato).</li>
-                    </ul>
-                </div>
-
-                <!-- Threats -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-gray-800">
-                    <h3 class="font-bold text-gray-800 mb-3 flex items-center"><span class="text-2xl mr-2">🛡️</span> Ameaças</h3>
-                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
-                        <li>Mudanças climáticas extremas.</li>
-                        <li>Concorrência de frutas exóticas importadas.</li>
-                        <li>Falta de sucessão familiar no campo.</li>
-                    </ul>
-                </div>
+    <!-- FOOTER -->
+    <footer class="bg-deep-blue text-white pt-20 pb-10 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-500 text-xs mb-4 uppercase tracking-widest">Plataforma Umbu Brasil - Protótipo MVP</p>
+            <div class="flex justify-center space-x-4 mb-8">
+                <button onclick="switchView('info-view')" class="text-gray-400 hover:text-white text-sm underline">Infográfico</button>
+                <button onclick="switchView('mvp-view')" class="text-gray-400 hover:text-white text-sm underline">Negócios</button>
             </div>
-        </section>
+            <p class="text-gray-600 text-[10px]">&copy; 2024. Todos os direitos reservados para fins de demonstração.</p>
+        </div>
+    </footer>
 
-        <!-- SECTION 6: FUTURE PROJECTIONS (Line Chart) -->
-        <section class="bg-gray-100 rounded-3xl p-8 mb-12">
-            <h2 class="text-2xl font-bold text-deep-blue mb-2 text-center">Projeção de Impacto Econômico (Cenário Otimizado)</h2>
-            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
-                Implementando as estratégias de processamento descentralizado e marketing nutricional, projeta-se um crescimento sustentável da receita dos produtores nos próximos 5 anos.
-            </p>
-            <!-- Chart Container -->
-            <div class="chart-container">
-                <canvas id="projectionChart"></canvas>
+    <!-- MODAL: REFERÊNCIAS -->
+    <div id="ref-modal" class="modal fixed inset-0 z-[200] flex items-center justify-center p-6 bg-deep-blue/90 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xl rounded-3xl p-8 shadow-2xl overflow-y-auto max-h-[80vh]">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-black">Fundamentação</h3>
+                <button onclick="toggleModal('ref-modal')" class="text-3xl font-bold text-gray-300 hover:text-black">&times;</button>
             </div>
-        </section>
-
-        <!-- CONCLUSION -->
-        <footer class="bg-deep-blue text-white py-12 px-4 rounded-t-3xl text-center">
-            <div class="max-w-4xl mx-auto">
-                <h2 class="text-3xl font-bold mb-6 text-umbu-light">Conclusão</h2>
-                <p class="text-lg text-gray-300 mb-8">
-                    O Umbu representa uma oportunidade única de alinhar conservação ambiental, justiça social e desenvolvimento econômico. A transição do modelo extrativista puramente artesanal para uma cadeia semi-industrial organizada é a chave para destravar este potencial.
-                </p>
-                <div class="inline-block bg-umbu-green text-white font-bold py-3 px-8 rounded-full shadow-lg">
-                    Investir no Umbu é Investir no Futuro do Brasil
-                </div>
+            <div class="space-y-4 text-sm text-gray-600">
+                <p><strong>• EMBRAPA Semiárido:</strong> Dados de conservação de <i>Spondias tuberosa</i>.</p>
+                <p><strong>• IBGE Agrícola:</strong> Estatísticas de safra regional 2022-2023.</p>
+                <p><strong>• TBCA:</strong> Tabela de composição de alimentos para análise nutricional.</p>
+                <p><strong>• Journal of Food Science:</strong> Estudos sobre antioxidantes em frutas tropicais nativas.</p>
             </div>
-        </footer>
+            <button onclick="toggleModal('ref-modal')" class="mt-8 w-full bg-umbu-green text-white py-4 rounded-xl font-bold">ENTENDIDO</button>
+        </div>
+    </div>
 
-    </main>
+    <!-- MODAL: CONTATO -->
+    <div id="contact-modal" class="modal fixed inset-0 z-[200] flex items-center justify-center p-6 bg-umbu-dark/90 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <h3 class="text-2xl font-black mb-4">Interesse Estratégico</h3>
+            <div class="space-y-4">
+                <input type="text" placeholder="Nome" class="w-full p-4 bg-soft-gray rounded-xl outline-none">
+                <input type="email" placeholder="E-mail" class="w-full p-4 bg-soft-gray rounded-xl outline-none">
+                <button class="w-full bg-deep-blue text-white py-4 rounded-xl font-bold">Enviar</button>
+            </div>
+            <button onclick="toggleModal('contact-modal')" class="mt-4 w-full text-gray-400 text-xs">Fechar</button>
+        </div>
+    </div>
 
     <script>
-        // --- DATA PROCESSING UTILS ---
-        
-        // Label wrapping logic for Chart.js (Strict 16 char limit)
-        function wrapLabels(labels) {
-            return labels.map(label => {
-                if (label.length > 16) {
-                    const words = label.split(' ');
-                    const lines = [];
-                    let currentLine = words[0];
-
-                    for (let i = 1; i < words.length; i++) {
-                        if ((currentLine + " " + words[i]).length <= 16) {
-                            currentLine += " " + words[i];
-                        } else {
-                            lines.push(currentLine);
-                            currentLine = words[i];
-                        }
-                    }
-                    lines.push(currentLine);
-                    return lines;
-                }
-                return label;
-            });
+        // --- VIEW SWITCHER ---
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            
+            // Update buttons
+            const isMvp = viewId === 'mvp-view';
+            document.getElementById('btn-info').className = isMvp ? "px-4 py-2 rounded-lg text-xs font-bold transition-all bg-gray-100 text-gray-500" : "px-4 py-2 rounded-lg text-xs font-bold transition-all bg-umbu-green text-white";
+            document.getElementById('btn-mvp').className = isMvp ? "px-4 py-2 rounded-lg text-xs font-bold transition-all bg-deep-blue text-white" : "px-4 py-2 rounded-lg text-xs font-bold transition-all bg-gray-100 text-gray-500 hover:bg-umbu-light hover:text-umbu-dark";
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Standard Tooltip Config
-        const commonTooltipOptions = {
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('active');
+        }
+
+        // --- CHART HELPERS ---
+        const wrapLabels = (labels) => labels.map(l => l.length > 16 ? [l.slice(0, 16), l.slice(16)] : l);
+        const tooltipConfig = {
             callbacks: {
-                title: function(tooltipItems) {
-                    const item = tooltipItems[0];
-                    let label = item.chart.data.labels[item.dataIndex];
-                    if (Array.isArray(label)) {
-                        return label.join(' ');
-                    } else {
-                        return label;
-                    }
+                title: (items) => {
+                    const label = items[0].chart.data.labels[items[0].dataIndex];
+                    return Array.isArray(label) ? label.join('') : label;
                 }
             }
         };
 
-        // --- CHART GENERATION ---
-
-        // 1. Radar Chart: Nutritional Comparison
-        // Data sources: IBGE/Embrapa (approximate values for visualization)
-        const radarCtx = document.getElementById('nutritionRadarChart').getContext('2d');
-        new Chart(radarCtx, {
-            type: 'radar',
-            data: {
-                labels: wrapLabels(['Vitamina C', 'Antioxidantes', 'Fibras', 'Minerais', 'Baixa Caloria', 'Hidratação']),
-                datasets: [{
-                    label: 'Umbu (Ouro Verde)',
-                    data: [85, 90, 70, 80, 95, 88],
-                    fill: true,
-                    backgroundColor: 'rgba(0, 200, 83, 0.2)',
-                    borderColor: '#00C853',
-                    pointBackgroundColor: '#00C853',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#00C853'
-                }, {
-                    label: 'Laranja Comum',
-                    data: [95, 60, 65, 50, 60, 70],
-                    fill: true,
-                    backgroundColor: 'rgba(200, 200, 200, 0.2)',
-                    borderColor: '#B0BEC5',
-                    pointBackgroundColor: '#B0BEC5',
-                    pointBorderColor: '#fff',
-                    borderDash: [5, 5]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                elements: { line: { borderWidth: 3 } },
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: commonTooltipOptions
+        // --- INITIALIZE CHARTS ---
+        window.onload = () => {
+            // INFO RADAR CHART
+            new Chart(document.getElementById('infoRadarChart'), {
+                type: 'radar',
+                data: {
+                    labels: wrapLabels(['Vitamina C', 'Cálcio', 'Potássio', 'Energia', 'Biodisponibilidade']),
+                    datasets: [{
+                        label: 'Umbu Puro',
+                        data: [88, 70, 95, 60, 90],
+                        borderColor: '#00C853',
+                        backgroundColor: 'rgba(0, 200, 83, 0.2)',
+                    }, {
+                        label: 'Média Cítricos',
+                        data: [95, 40, 50, 40, 70],
+                        borderColor: '#90A4AE',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5]
+                    }]
                 },
-                scales: {
-                    r: {
-                        angleLines: { color: '#E0E0E0' },
-                        grid: { color: '#E0E0E0' },
-                        pointLabels: {
-                            font: { size: 12, family: 'Inter' },
-                            color: '#455A64'
-                        },
-                        suggestedMin: 0,
-                        suggestedMax: 100
-                    }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { tooltip: tooltipConfig },
+                    scales: { r: { ticks: { display: false } } }
                 }
-            }
-        });
+            });
 
-        // 2. Donut Chart: Post-Harvest Waste
-        const donutCtx = document.getElementById('wasteDonutChart').getContext('2d');
-        new Chart(donutCtx, {
-            type: 'doughnut',
-            data: {
-                labels: wrapLabels(['Perda Pós-Colheita', 'Consumo Local', 'Venda in Natura', 'Processado']),
-                datasets: [{
-                    data: [40, 25, 25, 10],
-                    backgroundColor: [
-                        '#DD2C00', // Red for Waste
-                        '#FFD600', // Yellow
-                        '#00C853', // Green
-                        '#263238'  // Dark
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right' },
-                    tooltip: commonTooltipOptions,
-                    title: {
-                        display: true,
-                        text: 'Destino da Produção (Cenário Atual)',
-                        font: { size: 16 }
-                    }
+            // MVP PROFIT CHART
+            const profitChart = new Chart(document.getElementById('mvpProfitChart'), {
+                type: 'bar',
+                data: {
+                    labels: wrapLabels(['Cenário Atual', 'Com Processamento']),
+                    datasets: [{
+                        label: 'Margem Líquida Est.',
+                        data: [500, 2500],
+                        backgroundColor: ['#DD2C00', '#00C853'],
+                        borderRadius: 12
+                    }]
                 },
-                cutout: '60%'
-            }
-        });
-
-        // 3. Stacked Bar Chart: Value Addition
-        const barCtx = document.getElementById('valueAddChart').getContext('2d');
-        new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: wrapLabels(['Produtor (Base)', 'Intermediário', 'Indústria', 'Varejo Final']),
-                datasets: [{
-                    label: 'Margem de Lucro (%)',
-                    data: [15, 30, 45, 60],
-                    backgroundColor: '#00C853',
-                    borderRadius: 4
-                },
-                {
-                    label: 'Custo Operacional',
-                    data: [20, 15, 35, 25],
-                    backgroundColor: '#CFD8DC',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { stacked: true, grid: { display: false } },
-                    y: { stacked: true, beginAtZero: true }
-                },
-                plugins: {
-                    tooltip: commonTooltipOptions,
-                    legend: { position: 'bottom' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { tooltip: tooltipConfig, legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v + 'k' } } }
                 }
-            }
-        });
+            });
 
-        // 4. Line Chart: Future Projections
-        const lineCtx = document.getElementById('projectionChart').getContext('2d');
-        new Chart(lineCtx, {
-            type: 'line',
-            data: {
-                labels: ['Ano 1', 'Ano 2', 'Ano 3', 'Ano 4', 'Ano 5'],
-                datasets: [{
-                    label: 'Receita com Estratégia Integrada (R$ mi)',
-                    data: [1.2, 1.8, 3.5, 5.2, 8.0],
-                    borderColor: '#DD2C00', // Terra Cotta for visibility/energy
-                    backgroundColor: 'rgba(221, 44, 0, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Cenário Inercial (Sem Mudanças)',
-                    data: [1.2, 1.3, 1.4, 1.5, 1.6],
-                    borderColor: '#90A4AE',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    tension: 0.4,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    tooltip: commonTooltipOptions,
-                    legend: { position: 'top' }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Milhões de Reais (Estimado)' }
-                    }
-                }
-            }
-        });
+            // SIMULATOR LOGIC
+            const slider = document.getElementById('mvp-slider');
+            const volLabel = document.getElementById('mvp-vol-label');
+            const valRaw = document.getElementById('mvp-val-raw');
+            const valInd = document.getElementById('mvp-val-ind');
 
+            slider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                volLabel.innerText = val.toLocaleString() + 't';
+                
+                const raw = val * 0.5; // R$ 0.50/kg
+                const ind = val * 2.5; // R$ 2.50/kg
+                
+                valRaw.innerText = 'R$ ' + (raw >= 1000 ? (raw/1000).toFixed(2) + 'M' : raw.toFixed(0) + 'k');
+                valInd.innerText = 'R$ ' + (ind >= 1000 ? (ind/1000).toFixed(2) + 'M' : ind.toFixed(0) + 'k');
+                
+                profitChart.data.datasets[0].data = [raw, ind];
+                profitChart.update();
+            });
+        };
     </script>
 </body>
 </html>
